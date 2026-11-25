@@ -1,5 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { stitchMotion } from '../../tokens/designTokens';
 import { MaterialIcon } from './MaterialIcon';
 
@@ -9,28 +9,83 @@ export interface WorkspaceModalWidgetProps {
   onClose: () => void;
 }
 
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export function WorkspaceModalWidget({
   isOpen,
   selectedPlan = 'Starter',
   onClose,
 }: WorkspaceModalWidgetProps) {
+  const shouldReduceMotion = useReducedMotion();
   const [workspaceName, setWorkspaceName] = useState('');
   const [workEmail, setWorkEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  const handleClose = useCallback(() => {
+    setSubmitted(false);
+    setWorkspaceName('');
+    setWorkEmail('');
+    onClose();
+  }, [onClose]);
 
   useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+    if (!isOpen) {
+      setSubmitted(false);
+      return;
+    }
 
-  const handleClose = () => {
-    setSubmitted(false);
-    onClose();
-  };
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const focusTimer = window.requestAnimationFrame(() => {
+      const container = dialogRef.current;
+      if (!container) return;
+      const firstInput = container.querySelector<HTMLElement>('input');
+      const fallbackFocusable = container.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+      (firstInput ?? fallbackFocusable ?? container).focus();
+    });
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        handleClose();
+        return;
+      }
+
+      if (event.key === 'Tab' && dialogRef.current) {
+        const focusables = Array.from(
+          dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+        );
+        if (focusables.length === 0) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+
+        if (event.shiftKey) {
+          if (!active || active === first || !dialogRef.current.contains(active)) {
+            event.preventDefault();
+            last.focus();
+          }
+        } else if (!active || active === last || !dialogRef.current.contains(active)) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusTimer);
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = prevOverflow;
+      previousFocusRef.current?.focus();
+    };
+  }, [isOpen, handleClose]);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -48,20 +103,26 @@ export function WorkspaceModalWidget({
           aria-labelledby="workspace-modal-title"
         >
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.18 }}
             onClick={handleClose}
             className="fixed inset-0 bg-light-primary/60 backdrop-blur-sm"
           />
 
           <motion.div
-            initial={{ opacity: 0, y: 18, scale: 0.97 }}
+            ref={dialogRef}
+            tabIndex={-1}
+            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 18, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.97 }}
-            transition={{ duration: 0.24, ease: stitchMotion.easeHeavyDecel }}
-            className="relative z-10 w-full max-w-[440px] bg-light-surface-container-lowest rounded-xl border border-light-outline-variant/60 p-gutter-xl shadow-[0_32px_72px_-20px_rgba(8,12,22,0.38)] flex flex-col gap-gutter-lg"
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.97 }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : { duration: 0.24, ease: stitchMotion.easeHeavyDecel }
+            }
+            className="relative z-10 w-full max-w-[440px] bg-light-surface-container-lowest rounded-xl border border-light-outline-variant/60 p-gutter-xl shadow-[0_32px_72px_-20px_rgba(8,12,22,0.38)] flex flex-col gap-gutter-lg outline-none"
           >
             <div className="flex items-start justify-between gap-gutter-md">
               <div className="flex flex-col gap-1">

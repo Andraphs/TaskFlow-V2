@@ -25,7 +25,7 @@ export function FooterWidget({ brandName, copyright, links }: FooterWidgetProps)
             <a
               key={link.href}
               href={link.href}
-              className="font-body text-body-sm text-light-on-surface-variant hover:text-light-primary transition-colors"
+              className="py-1.5 font-body text-body-sm text-light-on-surface-variant hover:text-light-primary transition-colors"
             >
               {link.label}
             </a>

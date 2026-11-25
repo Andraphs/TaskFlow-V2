@@ -43,7 +43,7 @@ export function FaqSplitWidget({
   };
 
   return (
-    <section id="faq" className="max-w-[1120px] mx-auto px-page-margin py-16">
+    <section id="faq" className="scroll-mt-20 max-w-[1120px] mx-auto px-page-margin py-16">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter-xl items-start">
         {/* Left 5 Cols: Intro + Quick Support Card */}
         <RevealSection immediate={immediate} className="lg:col-span-5 flex flex-col gap-gutter-lg">

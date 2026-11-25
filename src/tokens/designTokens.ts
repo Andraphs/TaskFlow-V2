@@ -178,6 +178,22 @@ export const stitchMotion = {
     stiffness: 380,
     damping: 32,
   },
+  /** Silky critically-damped spring for smooth 3D hero pointer tracking & return */
+  springTiltCard: {
+    stiffness: 100,
+    damping: 22,
+    mass: 1,
+    restDelta: 0.0005,
+    restSpeed: 0.0005,
+  },
+  /** Softer parallax spring for floating hero accent cards */
+  springTiltFloat: {
+    stiffness: 80,
+    damping: 20,
+    mass: 1.1,
+    restDelta: 0.0005,
+    restSpeed: 0.0005,
+  },
   stagger: {
     fast: 0.03,
     base: 0.04,

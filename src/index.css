@@ -143,12 +143,11 @@
 
 .hero-tilt-card {
   transform-style: preserve-3d;
-  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 280ms ease;
+  transition: box-shadow 450ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
 
 .hero-float-plane {
-  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
 }
 
@@ -213,6 +212,44 @@
   }
 }
 
+@keyframes taskCheckPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.45);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.22);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes taskCheckRipple {
+  0% {
+    box-shadow: 0 0 0 0 rgb(78 222 163 / 55%);
+  }
+  100% {
+    box-shadow: 0 0 0 9px rgb(78 222 163 / 0%);
+  }
+}
+
+.task-check-pop {
+  animation: taskCheckPop 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.task-check-ripple {
+  animation: taskCheckRipple 520ms ease-out;
+}
+
+.task-progress-fill {
+  transform-origin: left center;
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
 .anim-float-slow {
   animation: floatSlow 5.6s ease-in-out infinite;
 }
@@ -236,10 +273,6 @@
   will-change: transform;
 }
 
-.marquee-track:hover {
-  animation-play-state: paused;
-}
-
 .faq-panel {
   display: grid;
   grid-template-rows: 0fr;
@@ -261,12 +294,40 @@
     transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1),
     border-color 220ms ease;
-  transform-style: preserve-3d;
 }
 
-.bento-3d:hover {
-  transform: translateY(-6px) rotateX(2deg);
-  box-shadow: 0 22px 44px -16px rgba(11, 28, 48, 0.14);
+.pricing-featured-card {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pricing-featured-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: -1;
+  pointer-events: none;
+  box-shadow: 0 34px 72px -14px rgba(82, 32, 229, 0.44);
+  opacity: 0;
+  transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bento-3d:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 44px -16px rgba(11, 28, 48, 0.14);
+  }
+
+  .pricing-featured-wrap:hover .pricing-featured-card {
+    transform: translate3d(0, -6px, 0);
+  }
+
+  .pricing-featured-wrap:hover .pricing-featured-card::after {
+    opacity: 1;
+  }
 }
 
 .ping-dot::before {
@@ -278,17 +339,313 @@
   animation: softPulseRing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
+@keyframes focusTimerIconSwap {
+  0% {
+    opacity: 0;
+    transform: scale(0.72) rotate(-14deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes focusTimerRunningPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.16);
+    opacity: 0;
+  }
+}
+
+@keyframes focusTimerCompleteRipple {
+  0% {
+    box-shadow:
+      0 10px 24px -6px rgba(82, 32, 229, 0.5),
+      0 0 0 0 rgba(0, 108, 73, 0.45);
+  }
+  100% {
+    box-shadow:
+      0 10px 24px -6px rgba(82, 32, 229, 0.55),
+      0 0 0 10px rgba(0, 108, 73, 0);
+  }
+}
+
+@keyframes focusTimerBadgeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(2px) scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.focus-timer-btn {
+  transition:
+    transform 180ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.focus-timer-btn-running::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid var(--tf-light-secondary);
+  pointer-events: none;
+  animation: focusTimerRunningPulse 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.focus-timer-btn-complete {
+  animation: focusTimerCompleteRipple 650ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.focus-timer-icon-swap {
+  animation: focusTimerIconSwap 200ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+.focus-timer-badge-enter {
+  animation: focusTimerBadgeIn 220ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+/* Dashboard Bento & Folder-Tab Helpers (Stitch Dashboard Fidelity) */
+.folder-tab-curve {
+  position: relative;
+}
+
+.folder-tab-curve::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: -16px;
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle at 100% 0, transparent 16px, #ffffff 16.5px);
+  pointer-events: none;
+}
+
+@keyframes barGrowY {
+  from {
+    transform: scaleY(0.15);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes progressGrowX {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0.7;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.94) translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes softPing {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  75%,
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
+.anim-bar-grow {
+  transform-origin: bottom;
+  animation: barGrowY 500ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+.anim-progress-grow {
+  transform-origin: left;
+  animation: progressGrowX 600ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+.anim-fade-up {
+  animation: fadeSlideUp 320ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+.anim-modal-pop {
+  animation: popIn 220ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+.anim-check-pop {
+  animation: checkPop 240ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+.anim-spin-slow {
+  animation: spinSlow 6s linear infinite;
+}
+
+.anim-ping-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background-color: inherit;
+  animation: softPing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.bento-card {
+  transition:
+    transform 200ms cubic-bezier(0.2, 0, 0, 1),
+    box-shadow 200ms cubic-bezier(0.2, 0, 0, 1),
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.dashboard-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(118, 119, 124, 0.35) transparent;
+}
+
+.dashboard-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dashboard-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(118, 119, 124, 0.32);
+  border-radius: 9999px;
+}
+
+.dashboard-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(118, 119, 124, 0.5);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .bento-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -8px rgba(11, 28, 48, 0.12);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
   .anim-float-slow,
   .anim-float-med,
   .anim-float-alt,
   .anim-float-alt-rev,
   .marquee-track,
-  .ping-dot::before {
+  .ping-dot::before,
+  .task-check-pop,
+  .task-check-ripple,
+  .focus-timer-btn-running::after,
+  .focus-timer-btn-complete,
+  .focus-timer-icon-swap,
+  .focus-timer-badge-enter,
+  .anim-bar-grow,
+  .anim-progress-grow,
+  .anim-fade-up,
+  .anim-modal-pop,
+  .anim-check-pop,
+  .anim-spin-slow,
+  .anim-ping-ring::before {
     animation: none !important;
   }
 
-  .bento-3d:hover {
+  .focus-timer-btn-running::after {
+    opacity: 0 !important;
+  }
+
+  .marquee-track {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: var(--tf-page-margin);
+    justify-content: center;
+    will-change: auto;
+  }
+
+  .marquee-group-primary {
+    width: 100%;
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-right: 0;
+    gap: var(--tf-gutter-sm);
+  }
+
+  .marquee-duplicate {
+    display: none;
+  }
+
+  .task-progress-fill,
+  .focus-timer-btn,
+  .pricing-featured-card,
+  .pricing-featured-card::after,
+  .faq-panel,
+  .bento-3d,
+  .hero-tilt-card {
+    transition-duration: 0.01ms !important;
+  }
+
+  .bento-3d:hover,
+  .bento-card:hover,
+  .focus-timer-btn:hover,
+  .focus-timer-btn:active {
     transform: none;
+  }
+
+  .pricing-featured-wrap:hover .pricing-featured-card {
+    transform: translate3d(0, 0, 0);
   }
 }

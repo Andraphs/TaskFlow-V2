@@ -22,21 +22,27 @@ export function MarqueeWidget({ caption, teams }: MarqueeWidgetProps) {
       </div>
       <div className="relative w-full overflow-hidden py-1">
         <div className="marquee-track flex items-center">
-          <div className="flex items-center shrink-0 gap-gutter-xl pr-gutter-xl">
-            {rowItems.map((team, index) => (
-              <div
-                key={`set1-${team.name}-${index}`}
-                className="flex items-center shrink-0 whitespace-nowrap gap-gutter-sm px-gutter-lg py-gutter-sm rounded-full bg-neutral-canvas"
-              >
-                <MaterialIcon name={team.icon} size={18} className={team.iconColorClass} />
-                <span className="font-headline text-title-md text-light-on-surface">
-                  {team.name}
-                </span>
-              </div>
-            ))}
+          <div className="marquee-group-primary flex items-center shrink-0 gap-gutter-xl pr-gutter-xl">
+            {rowItems.map((team, index) => {
+              const isDuplicate = index >= teams.length;
+              return (
+                <div
+                  key={`set1-${team.name}-${index}`}
+                  aria-hidden={isDuplicate || undefined}
+                  className={`flex items-center shrink-0 whitespace-nowrap gap-gutter-sm px-gutter-lg py-gutter-sm rounded-full bg-neutral-canvas${
+                    isDuplicate ? ' marquee-duplicate' : ''
+                  }`}
+                >
+                  <MaterialIcon name={team.icon} size={18} className={team.iconColorClass} />
+                  <span className="font-headline text-title-md text-light-on-surface">
+                    {team.name}
+                  </span>
+                </div>
+              );
+            })}
           </div>
           <div
-            className="flex items-center shrink-0 gap-gutter-xl pr-gutter-xl"
+            className="marquee-duplicate flex items-center shrink-0 gap-gutter-xl pr-gutter-xl"
             aria-hidden="true"
           >
             {rowItems.map((team, index) => (

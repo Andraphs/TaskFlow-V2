@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import type { ChecklistTaskItem } from '../../data/mockData';
-import { stitchMotion } from '../../tokens/designTokens';
 import { MaterialIcon } from './MaterialIcon';
 
 export interface TaskChecklistWidgetProps {
@@ -25,17 +23,31 @@ export function TaskChecklistWidget({
   const [internalCompletedIds, setInternalCompletedIds] = useState<string[]>(() =>
     tasks.filter((t) => t.defaultCompleted).map((t) => t.id)
   );
+  const [animatedTaskIds, setAnimatedTaskIds] = useState<Record<string, boolean>>({});
 
   const activeCompletedIds = controlledCompletedIds ?? internalCompletedIds;
   const doneCount = tasks.filter((t) => activeCompletedIds.includes(t.id)).length;
-  const progressPct = tasks.length > 0 ? Math.round((doneCount / tasks.length) * 100) : 0;
+  const progressRatio = tasks.length > 0 ? doneCount / tasks.length : 0;
 
   const handleToggle = (taskId: string) => {
+    const wasChecked = activeCompletedIds.includes(taskId);
+
     if (controlledCompletedIds === undefined) {
       setInternalCompletedIds((prev) =>
         prev.includes(taskId) ? prev.filter((id) => id !== taskId) : [...prev, taskId]
       );
     }
+
+    setAnimatedTaskIds((prev) => {
+      if (!wasChecked) {
+        return { ...prev, [taskId]: true };
+      }
+      if (!prev[taskId]) return prev;
+      const next = { ...prev };
+      delete next[taskId];
+      return next;
+    });
+
     onToggleTask?.(taskId);
   };
 
@@ -50,55 +62,72 @@ export function TaskChecklistWidget({
           </span>
           <h3 className="font-headline text-headline-md text-light-on-primary">{title}</h3>
         </div>
-        <span className="font-mono text-mono-sm px-gutter-md py-1 rounded-full bg-light-primary-container text-light-on-primary tabular-nums shrink-0">
+        <span
+          aria-live="polite"
+          className="font-mono text-mono-sm px-gutter-md py-1 rounded-full bg-light-primary-container text-light-on-primary tabular-nums shrink-0"
+        >
           {doneCount} / {tasks.length} done
         </span>
       </div>
 
-      <div className="w-full h-1.5 rounded-full bg-light-primary-container overflow-hidden">
-        <motion.div
-          initial={false}
-          animate={{ width: `${progressPct}%` }}
-          transition={{ duration: 0.32, ease: stitchMotion.easeHeavyDecel }}
-          className="h-full rounded-full bg-dark-mint"
+      <div
+        role="progressbar"
+        aria-label="Task completion"
+        aria-valuemin={0}
+        aria-valuemax={tasks.length}
+        aria-valuenow={doneCount}
+        className="w-full h-1.5 rounded-full bg-light-primary-container overflow-hidden"
+      >
+        <div
+          style={{ transform: `scaleX(${progressRatio})` }}
+          className="h-full w-full rounded-full bg-dark-mint task-progress-fill"
         />
       </div>
 
-      <div className="flex flex-col gap-gutter-sm">
+      <div className="relative z-10 flex flex-col gap-gutter-sm">
         {tasks.map((task) => {
           const isCompleted = activeCompletedIds.includes(task.id);
+          const shouldAnimate = isCompleted && Boolean(animatedTaskIds[task.id]);
+
           return (
             <button
               key={task.id}
               type="button"
               onClick={() => handleToggle(task.id)}
               aria-pressed={isCompleted}
-              className={`w-full text-left bg-light-primary-container hover:bg-light-on-primary/10 rounded-xl border p-gutter-md flex items-center justify-between gap-gutter-md transition-all duration-150 active:scale-[0.99] ${
+              className={`relative w-full text-left cursor-pointer bg-light-primary-container hover:bg-light-on-primary/10 rounded-xl border p-gutter-md flex items-center justify-between gap-gutter-md transition-all duration-150 active:scale-[0.99] ${
                 isCompleted ? 'border-dark-mint/30 opacity-75' : 'border-light-on-primary/10'
               }`}
             >
-              <div className="flex items-center gap-gutter-md min-w-0">
+              <span className="pointer-events-none flex items-center gap-gutter-md min-w-0">
                 <span
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                  aria-hidden="true"
+                  className={`pointer-events-none w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                     isCompleted
                       ? 'border-dark-mint bg-dark-mint'
                       : `${task.accentRingClass} bg-transparent`
-                  }`}
+                  } ${shouldAnimate ? 'task-check-ripple' : ''}`}
                 >
                   {isCompleted && (
-                    <MaterialIcon name="check" size={14} className="text-light-primary" />
+                    <MaterialIcon
+                      name="check"
+                      size={14}
+                      className={`pointer-events-none text-light-primary ${
+                        shouldAnimate ? 'task-check-pop' : ''
+                      }`}
+                    />
                   )}
                 </span>
                 <span
-                  className={`font-body text-title-md text-light-on-primary truncate ${
+                  className={`pointer-events-none font-body text-title-md text-light-on-primary truncate ${
                     isCompleted ? 'line-through' : ''
                   }`}
                 >
                   {task.title}
                 </span>
-              </div>
+              </span>
               <span
-                className={`font-mono text-mono-sm shrink-0 ${
+                className={`pointer-events-none font-mono text-mono-sm shrink-0 ${
                   isCompleted ? 'text-dark-mint' : 'text-light-on-primary/60'
                 }`}
               >

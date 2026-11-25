@@ -89,7 +89,8 @@ export function MobileSyncWidget({
             type="button"
             onClick={handleToggle}
             aria-pressed={joined}
-            className={`px-gutter-md py-1 rounded-full font-body text-label-sm transition-all active:scale-95 shrink-0 ${
+            aria-label={joined ? `Leave ${meetingTitle}` : `Join ${meetingTitle}`}
+            className={`min-h-[32px] px-gutter-md py-1.5 rounded-full font-body text-label-sm transition-all active:scale-95 shrink-0 ${
               joined
                 ? 'bg-mint-soft text-light-mint'
                 : 'bg-light-primary text-light-on-primary hover:opacity-90'

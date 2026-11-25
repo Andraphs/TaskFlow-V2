@@ -32,7 +32,7 @@ export function IntegrationsHubWidget({
   return (
     <section
       id="integrations"
-      className="max-w-[1120px] mx-auto px-page-margin py-16 flex flex-col gap-gutter-xl"
+      className="scroll-mt-20 max-w-[1120px] mx-auto px-page-margin py-16 flex flex-col gap-gutter-xl"
     >
       <RevealSection immediate={immediate}>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-gutter-md">
@@ -114,14 +114,14 @@ export function IntegrationsHubWidget({
                 <button
                   type="button"
                   onClick={onExploreApi}
-                  className="font-body text-label-sm text-dark-mint hover:underline shrink-0"
+                  className="py-1.5 -my-1.5 font-body text-label-sm text-dark-mint hover:underline shrink-0"
                 >
                   {hubFooterCta}
                 </button>
               ) : (
                 <a
                   href="#cta"
-                  className="font-body text-label-sm text-dark-mint hover:underline shrink-0"
+                  className="py-1.5 -my-1.5 font-body text-label-sm text-dark-mint hover:underline shrink-0"
                 >
                   {hubFooterCta}
                 </a>

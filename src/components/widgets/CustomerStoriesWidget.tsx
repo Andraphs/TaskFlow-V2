@@ -62,17 +62,17 @@ export function CustomerStoriesWidget({
   return (
     <section
       id="customers"
-      className="max-w-[1120px] mx-auto px-page-margin py-16 flex flex-col gap-gutter-xl"
+      className="scroll-mt-20 max-w-[1120px] mx-auto px-page-margin py-16 flex flex-col gap-gutter-xl"
     >
       <RevealSection immediate={immediate}>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-gutter-md">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-gutter-md">
           <div className="max-w-[540px] flex flex-col gap-gutter-sm">
             <span className="font-body text-label-sm text-light-secondary">{eyebrow}</span>
             <h2 className="font-headline text-headline-lg text-light-primary text-balance">
               {headline}
             </h2>
           </div>
-          <div className="inline-flex items-center gap-gutter-sm px-gutter-lg py-gutter-sm rounded-full bg-light-surface-container-lowest border border-light-outline-variant/50 w-fit">
+          <div className="inline-flex items-center gap-gutter-sm px-gutter-lg py-gutter-sm rounded-full bg-light-surface-container-lowest border border-light-outline-variant/50 w-fit shrink-0 whitespace-nowrap">
             <FiveStars />
             <span className="font-body text-label-lg text-light-on-surface tabular-nums">
               {ratingScore}

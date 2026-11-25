@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import type { NavLinkItem } from '../../data/mockData';
 import { stitchMotion } from '../../tokens/designTokens';
 import { MaterialIcon } from './MaterialIcon';
@@ -16,9 +16,29 @@ export function NavbarWidget({
   onStartFree,
 }: NavbarWidgetProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileMenuOpen(false);
+    };
+    const handlePointerDown = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handlePointerDown);
+    };
+  }, [mobileMenuOpen]);
 
   return (
-    <div className="sticky top-0 z-40 px-4 sm:px-page-margin pt-gutter-lg pb-gutter-sm">
+    <div ref={wrapperRef} className="sticky top-0 z-40 px-4 sm:px-page-margin pt-gutter-lg pb-gutter-sm">
       <nav
         id="landing-nav"
         aria-label="Primary navigation"
@@ -38,7 +58,7 @@ export function NavbarWidget({
             <a
               key={link.href}
               href={link.href}
-              className="font-body text-label-lg text-light-on-surface-variant hover:text-light-primary transition-colors"
+              className="py-2 font-body text-label-lg text-light-on-surface-variant hover:text-light-primary transition-colors"
             >
               {link.label}
             </a>
@@ -76,8 +96,9 @@ export function NavbarWidget({
             type="button"
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-menu"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-full bg-neutral-canvas text-light-on-surface hover:bg-light-surface-variant transition-colors active:scale-95"
+            className="md:hidden inline-flex items-center justify-center w-11 h-11 rounded-full bg-neutral-canvas text-light-on-surface hover:bg-light-surface-variant transition-colors active:scale-95"
           >
             <MaterialIcon name={mobileMenuOpen ? 'close' : 'menu'} size={20} />
           </button>
@@ -88,10 +109,15 @@ export function NavbarWidget({
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            id="mobile-nav-menu"
+            initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: stitchMotion.easeHeavyDecel }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.98 }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : { duration: 0.2, ease: stitchMotion.easeHeavyDecel }
+            }
             className="md:hidden max-w-[1120px] mx-auto mt-gutter-sm bg-light-surface-container-lowest/95 backdrop-blur-md border border-light-outline-variant/50 rounded-xl p-gutter-md shadow-[0_18px_40px_-14px_rgba(11,28,48,0.16)] flex flex-col gap-1"
           >
             {links.map((link) => (

@@ -31,7 +31,7 @@ export function FinalCtaWidget({
   immediate = false,
 }: FinalCtaWidgetProps) {
   return (
-    <section id="cta" className="max-w-[1120px] mx-auto px-page-margin pb-16">
+    <section id="cta" className="scroll-mt-20 max-w-[1120px] mx-auto px-page-margin pb-16">
       <RevealSection immediate={immediate}>
         <div className="bg-light-primary text-light-on-primary rounded-xl p-gutter-xl md:p-12 grid grid-cols-1 lg:grid-cols-12 gap-gutter-xl items-center shadow-[0_28px_64px_-18px_rgba(8,12,22,0.28)]">
           <div className="lg:col-span-7 flex flex-col gap-gutter-md">

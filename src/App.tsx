@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { MotionConfig } from 'framer-motion';
+import { DashboardPage } from './components/dashboard/DashboardPage';
 import {
   bentoHeaderData,
   checklistTasksData,
@@ -38,9 +39,57 @@ import {
   WorkspaceModalWidget,
 } from './components/widgets';
 
+function isDashboardHash(): boolean {
+  return window.location.hash.toLowerCase() === '#dashboard';
+}
+
 export function App() {
+  const [activeView, setActiveView] = useState<'landing' | 'dashboard'>(() =>
+    isDashboardHash() ? 'dashboard' : 'landing',
+  );
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('Starter');
+
+  useEffect(() => {
+    const syncViewFromLocation = () => {
+      const nextView = isDashboardHash() ? 'dashboard' : 'landing';
+      setActiveView(nextView);
+      if (nextView === 'dashboard') {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      }
+    };
+
+    window.addEventListener('hashchange', syncViewFromLocation);
+    window.addEventListener('popstate', syncViewFromLocation);
+    return () => {
+      window.removeEventListener('hashchange', syncViewFromLocation);
+      window.removeEventListener('popstate', syncViewFromLocation);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.title =
+      activeView === 'dashboard'
+        ? 'TaskFlow — Task Management Dashboard'
+        : 'TaskFlow — Plan Sprints, Ship Faster, Stay in Flow';
+  }, [activeView]);
+
+  const openDashboard = useCallback(() => {
+    setModalOpen(false);
+    if (!isDashboardHash()) {
+      window.location.hash = 'dashboard';
+    }
+    setActiveView('dashboard');
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, []);
+
+  const backToLanding = useCallback(() => {
+    if (isDashboardHash()) {
+      window.history.pushState(null, '', `${window.location.pathname}${window.location.search}`);
+    }
+    setActiveView('landing');
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, []);
 
   const openWorkspaceModal = (planName = 'Starter') => {
     setSelectedPlan(planName);
@@ -49,6 +98,14 @@ export function App() {
 
   const heroDashboardSrc = `${import.meta.env.BASE_URL}images/hero-dashboard-preview.png`;
 
+  if (activeView === 'dashboard') {
+    return (
+      <MotionConfig reducedMotion="user">
+        <DashboardPage onBackToLanding={backToLanding} />
+      </MotionConfig>
+    );
+  }
+
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen bg-light-surface text-light-on-surface font-body antialiased">
@@ -56,7 +113,7 @@ export function App() {
         <NavbarWidget
           brandName={footerData.brandName}
           links={navLinks}
-          onStartFree={() => openWorkspaceModal('Starter')}
+          onStartFree={openDashboard}
         />
 
         <main id="top" className="w-full overflow-x-clip">
@@ -72,7 +129,7 @@ export function App() {
             flowIndex={heroData.flowIndex}
             pulseCapsule={heroData.pulseCapsule}
             momentumCard={heroData.momentumCard}
-            onPrimaryCtaClick={() => openWorkspaceModal('Starter')}
+            onPrimaryCtaClick={openDashboard}
           />
 
           {/* 2. Social Proof Marquee */}
@@ -81,7 +138,7 @@ export function App() {
           {/* 3. Interactive 3D Bento Features */}
           <section
             id="features"
-            className="max-w-[1200px] mx-auto px-page-margin py-16 flex flex-col gap-gutter-xl"
+            className="scroll-mt-20 max-w-[1200px] mx-auto px-page-margin py-16 flex flex-col gap-gutter-xl"
           >
             <RevealSection>
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-gutter-md">
@@ -172,9 +229,13 @@ export function App() {
             description={pricingData.description}
             tiers={pricingData.tiers}
             guarantees={pricingData.guarantees}
-            onSelectPlan={(planName, cycle) =>
-              openWorkspaceModal(`${planName} (${cycle === 'yearly' ? 'Yearly' : 'Monthly'})`)
-            }
+            onSelectPlan={(planName, cycle) => {
+              if (planName === 'Pro Team') {
+                openDashboard();
+                return;
+              }
+              openWorkspaceModal(`${planName} (${cycle === 'yearly' ? 'Yearly' : 'Monthly'})`);
+            }}
           />
 
           {/* 8. Customer Stories Asymmetric Bento */}
@@ -207,7 +268,7 @@ export function App() {
             primaryCta={finalCtaData.primaryCta}
             secondaryCta={finalCtaData.secondaryCta}
             card={finalCtaData.card}
-            onCreateWorkspace={() => openWorkspaceModal('Starter')}
+            onCreateWorkspace={openDashboard}
           />
         </main>
 

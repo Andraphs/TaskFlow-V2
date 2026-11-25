@@ -1,5 +1,11 @@
-import { useState, type MouseEvent } from 'react';
-import { motion } from 'framer-motion';
+import { type PointerEvent } from 'react';
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from 'framer-motion';
 import { stitchMotion } from '../../tokens/designTokens';
 import { MaterialIcon } from './MaterialIcon';
 
@@ -44,34 +50,69 @@ export function HeroStageWidget({
   tiltOverride,
   onPrimaryCtaClick,
 }: HeroStageWidgetProps) {
-  const [pointer, setPointer] = useState({ x: 0, y: 0, active: false });
+  const shouldReduceMotion = useReducedMotion();
 
-  const effectiveX = tiltOverride ? tiltOverride.x : pointer.x;
-  const effectiveY = tiltOverride ? tiltOverride.y : pointer.y;
-  const isTilted = Boolean(tiltOverride) || pointer.active;
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const pointerActive = useMotionValue(0);
 
-  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+  const cardX = useSpring(pointerX, stitchMotion.springTiltCard);
+  const cardY = useSpring(pointerY, stitchMotion.springTiltCard);
+  const cardActive = useSpring(pointerActive, stitchMotion.springTiltCard);
+
+  const floatX = useSpring(pointerX, stitchMotion.springTiltFloat);
+  const floatY = useSpring(pointerY, stitchMotion.springTiltFloat);
+
+  const cardTransform = useTransform(
+    [cardX, cardY, cardActive],
+    ([x, y, active]: number[]) =>
+      `rotateY(${(x * 9).toFixed(3)}deg) rotateX(${(4 - y * 7).toFixed(3)}deg) translateZ(${(active * 14).toFixed(2)}px)`,
+  );
+
+  const planeATransform = useTransform(
+    [floatX, floatY],
+    ([x, y]: number[]) => `translate3d(${(x * -12).toFixed(2)}px, ${(y * -8).toFixed(2)}px, 0)`,
+  );
+
+  const planeBTransform = useTransform(
+    [floatX, floatY],
+    ([x, y]: number[]) => `translate3d(${(x * 12).toFixed(2)}px, ${(y * 8).toFixed(2)}px, 0)`,
+  );
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'touch' || shouldReduceMotion || tiltOverride) return;
     const rect = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width - 0.5;
-    const y = (event.clientY - rect.top) / rect.height - 0.5;
-    setPointer({ x, y, active: true });
+    const rawX = (event.clientX - rect.left) / rect.width - 0.5;
+    const rawY = (event.clientY - rect.top) / rect.height - 0.5;
+    pointerX.set(Math.max(-0.5, Math.min(0.5, rawX)));
+    pointerY.set(Math.max(-0.5, Math.min(0.5, rawY)));
+    pointerActive.set(1);
   };
 
-  const handleMouseLeave = () => {
-    setPointer({ x: 0, y: 0, active: false });
+  const handlePointerLeave = () => {
+    if (tiltOverride) return;
+    pointerX.set(0);
+    pointerY.set(0);
+    pointerActive.set(0);
   };
 
-  const cardTransform = isTilted
-    ? `rotateY(${effectiveX * 9}deg) rotateX(${4 - effectiveY * 7}deg) translateZ(14px)`
-    : 'rotateY(0deg) rotateX(4deg) translateZ(0px)';
+  const resolvedCardTransform = tiltOverride
+    ? `rotateY(${tiltOverride.x * 9}deg) rotateX(${4 - tiltOverride.y * 7}deg) translateZ(14px)`
+    : shouldReduceMotion
+      ? 'none'
+      : cardTransform;
 
-  const planeATransform = isTilted
-    ? `translate3d(${effectiveX * -12}px, ${effectiveY * -8}px, 0)`
-    : 'translate3d(0, 0, 0)';
+  const resolvedPlaneATransform = tiltOverride
+    ? `translate3d(${tiltOverride.x * -12}px, ${tiltOverride.y * -8}px, 0)`
+    : shouldReduceMotion
+      ? 'none'
+      : planeATransform;
 
-  const planeBTransform = isTilted
-    ? `translate3d(${effectiveX * 12}px, ${effectiveY * 8}px, 0)`
-    : 'translate3d(0, 0, 0)';
+  const resolvedPlaneBTransform = tiltOverride
+    ? `translate3d(${tiltOverride.x * 12}px, ${tiltOverride.y * 8}px, 0)`
+    : shouldReduceMotion
+      ? 'none'
+      : planeBTransform;
 
   const circumference = 138.2;
   const strokeDashoffset = circumference - (circumference * flowIndex.percent) / 100;
@@ -146,8 +187,8 @@ export function HeroStageWidget({
         initial={{ opacity: 0, y: 24, scale: 0.985 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.65, delay: 0.12, ease: stitchMotion.easeHeavyDecel }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
         className="hero-stage relative w-full max-w-[1060px] mt-gutter-lg pt-gutter-md pb-gutter-xl"
       >
         {/* Abstract Aurora Mesh + Subtle Dot Matrix Backdrop (100% Stitch Fidelity) */}
@@ -170,9 +211,9 @@ export function HeroStageWidget({
         </div>
 
         {/* Abstract Accent 1 (Top-Left): Frosted Radial Progress Orb */}
-        <div
-          style={{ transform: planeATransform }}
-          className="hero-float-plane hidden md:block absolute -top-4 left-0 lg:-left-4 z-30"
+        <motion.div
+          style={{ transform: resolvedPlaneATransform }}
+          className="hero-float-plane hidden lg:block absolute -top-4 left-0 lg:-left-4 z-30"
         >
           <div className="anim-float-slow flex bg-light-surface-container-lowest/85 backdrop-blur-xl rounded-2xl border border-light-outline-variant/60 p-gutter-md shadow-[0_24px_48px_-14px_rgba(82,32,229,0.22)] items-center gap-gutter-md text-left">
             <div className="relative w-14 h-14 flex items-center justify-center shrink-0">
@@ -209,12 +250,12 @@ export function HeroStageWidget({
               </span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Abstract Accent 2 (Bottom-Left): Dark Spectrum Pulse Capsule */}
-        <div
-          style={{ transform: planeATransform }}
-          className="hero-float-plane hidden md:block absolute bottom-6 left-2 lg:-left-5 z-30"
+        <motion.div
+          style={{ transform: resolvedPlaneATransform }}
+          className="hero-float-plane hidden lg:block absolute bottom-6 left-2 lg:-left-5 z-30"
         >
           <div className="anim-float-alt-rev flex bg-light-primary/95 backdrop-blur-xl text-light-on-primary rounded-2xl border border-light-on-primary/15 px-gutter-lg py-gutter-md shadow-[0_24px_48px_-14px_rgba(8,12,22,0.4)] items-center gap-gutter-md">
             <div className="flex items-end gap-1.5 h-9" aria-hidden="true">
@@ -235,11 +276,11 @@ export function HeroStageWidget({
               </span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Abstract Accent 3 (Top-Right): Layered 3D Glass Prism Cluster */}
-        <div
-          style={{ transform: planeBTransform }}
+        <motion.div
+          style={{ transform: resolvedPlaneBTransform }}
           className="hero-float-plane hidden lg:block absolute -top-6 right-2 lg:-right-4 z-30"
           aria-hidden="true"
         >
@@ -249,12 +290,12 @@ export function HeroStageWidget({
               <MaterialIcon name="bolt" size={24} className="text-light-secondary" />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Centerpiece: Clean Crisp 3D Tilting Full-Dashboard Frame */}
-        <div
+        <motion.div
           id="hero-tilt-card"
-          style={{ transform: cardTransform }}
+          style={{ transform: resolvedCardTransform }}
           className="hero-tilt-card relative z-10 max-w-[840px] mx-auto bg-light-surface-container-lowest rounded-2xl border border-light-outline-variant/60 p-2 shadow-[0_36px_80px_-20px_rgba(11,28,48,0.24)]"
         >
           <div className="overflow-hidden rounded-xl bg-neutral-canvas">
@@ -262,16 +303,16 @@ export function HeroStageWidget({
               id="hero-dashboard-img"
               src={dashboardImageSrc}
               alt={dashboardImageAlt}
-              fetchPriority="high"
+              {...({ fetchpriority: 'high' } as Record<string, string>)}
               decoding="async"
               className="w-full h-auto block"
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Abstract Accent 4 (Bottom-Right): Frosted Bezier Velocity Spline */}
-        <div
-          style={{ transform: planeBTransform }}
+        <motion.div
+          style={{ transform: resolvedPlaneBTransform }}
           className="hero-float-plane hidden lg:block absolute -bottom-3 right-0 lg:-right-4 z-30"
         >
           <div className="anim-float-alt flex w-[204px] bg-light-surface-container-lowest/85 backdrop-blur-xl rounded-2xl border border-light-outline-variant/60 p-gutter-md shadow-[0_24px_48px_-14px_rgba(11,28,48,0.2)] flex-col gap-1.5 text-left">
@@ -308,7 +349,7 @@ export function HeroStageWidget({
               <circle cx="162" cy="6" r="4.5" fill="#00885A" stroke="#FFFFFF" strokeWidth="2" />
             </svg>
           </div>
-        </div>
+        </motion.div>
       </motion.div>
     </section>
   );

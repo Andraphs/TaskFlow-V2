@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { stitchMotion } from '../../tokens/designTokens';
 
 export interface RevealSectionProps {
@@ -16,7 +16,9 @@ export function RevealSection({
   delay = 0,
   immediate = false,
 }: RevealSectionProps) {
-  if (immediate) {
+  const shouldReduceMotion = useReducedMotion();
+
+  if (immediate || shouldReduceMotion) {
     return <div className={className}>{children}</div>;
   }
 
