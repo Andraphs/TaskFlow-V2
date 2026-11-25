@@ -1,0 +1,294 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Stitch Accents & Soft Surfaces */
+  --tf-secondary-soft: #F4EEFF;
+  --tf-tertiary-soft: #FFEEDE;
+  --tf-tertiary-vivid: #F59E0B;
+  --tf-mint-soft: #BEFFDB;
+  --tf-coral-soft: #FFECEC;
+  --tf-sky-soft: #E5F2FF;
+  --tf-neutral-canvas: #F1F0F6;
+
+  /* Stitch Light Core Tokens */
+  --tf-light-primary: #080C16;
+  --tf-light-on-primary: #FFFFFF;
+  --tf-light-primary-container: #1E222D;
+  --tf-light-on-primary-container: #868997;
+  --tf-light-secondary: #5220E5;
+  --tf-light-on-secondary: #FFFFFF;
+  --tf-light-secondary-container: #E6DEFF;
+  --tf-light-on-secondary-container: #1B0063;
+  --tf-light-tertiary: #855300;
+  --tf-light-on-tertiary: #FFFFFF;
+  --tf-light-tertiary-container: #FFDDB8;
+  --tf-light-on-tertiary-container: #2A1700;
+  --tf-light-error: #B91A24;
+  --tf-light-on-error: #FFFFFF;
+  --tf-light-error-container: #FFDAD7;
+  --tf-light-on-error-container: #930013;
+
+  /* Stitch Light Surfaces, Text & Borders */
+  --tf-light-background: #F8F9FF;
+  --tf-light-on-background: #0B1C30;
+  --tf-light-surface: #F8F9FF;
+  --tf-light-surface-dim: #CBDBF5;
+  --tf-light-surface-bright: #F8F9FF;
+  --tf-light-surface-container-lowest: #FFFFFF;
+  --tf-light-surface-container-low: #EFF4FF;
+  --tf-light-surface-container: #E5EEFF;
+  --tf-light-surface-container-high: #DCE9FF;
+  --tf-light-surface-container-highest: #D3E4FE;
+  --tf-light-on-surface: #0B1C30;
+  --tf-light-surface-variant: #E3E2E8;
+  --tf-light-on-surface-variant: #46464C;
+  --tf-light-outline: #76777C;
+  --tf-light-outline-variant: #C6C6CC;
+  --tf-light-inverse-surface: #213145;
+  --tf-light-inverse-on-surface: #EAF1FF;
+  --tf-light-inverse-primary: #C3C6D5;
+
+  /* Stitch Semantic Light */
+  --tf-light-mint: #006C49;
+  --tf-light-on-mint: #FFFFFF;
+  --tf-light-mint-container: #6FFBBE;
+  --tf-light-on-mint-container: #002113;
+  --tf-light-coral: #BC0B3B;
+  --tf-light-on-coral: #FFFFFF;
+  --tf-light-coral-container: #FFDADB;
+  --tf-light-on-coral-container: #40000D;
+  --tf-light-sky: #006591;
+  --tf-light-on-sky: #FFFFFF;
+  --tf-light-sky-container: #C9E6FF;
+  --tf-light-on-sky-container: #001E2F;
+
+  /* Stitch Dark Semantic & Surfaces */
+  --tf-dark-background: #031427;
+  --tf-dark-surface-container: #102034;
+  --tf-dark-mint: #4EDEA3;
+  --tf-dark-sky: #89CEFF;
+  --tf-dark-coral: #FFB2B7;
+  --tf-dark-secondary: #C9BEFF;
+  --tf-dark-tertiary: #FFB95F;
+
+  /* Stitch Radii & Spacing */
+  --tf-radius-sm: 8px;
+  --tf-radius-default: 12px;
+  --tf-radius-md: 16px;
+  --tf-radius-lg: 20px;
+  --tf-radius-xl: 24px;
+  --tf-radius-full: 9999px;
+
+  --tf-gutter-xs: 4px;
+  --tf-gutter-sm: 8px;
+  --tf-gutter-md: 12px;
+  --tf-gutter-lg: 16px;
+  --tf-gutter-xl: 24px;
+  --tf-section: 32px;
+  --tf-page-margin: 24px;
+
+  /* Typography & Motion */
+  --tf-font-headline: "Red Hat Text", sans-serif;
+  --tf-font-body: "Radio Canada Big", sans-serif;
+  --tf-font-mono: "Fira Code", monospace;
+  --tf-ease-heavy-decel: cubic-bezier(0.16, 1, 0.3, 1);
+  --tf-ease-surface-enter: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer base {
+  html {
+    background-color: var(--tf-light-surface);
+    color: var(--tf-light-on-surface);
+    font-family: var(--tf-font-body);
+  }
+
+  button,
+  a,
+  [role="button"],
+  [role="tab"] {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--tf-light-secondary);
+    outline-offset: 2px;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.material-symbols-outlined {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  line-height: 1 !important;
+  box-sizing: content-box;
+  overflow: hidden;
+  white-space: nowrap;
+  direction: ltr;
+  vertical-align: middle;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+/* 3D Perspective Stage & Floating Levitation */
+.hero-stage {
+  perspective: 1400px;
+}
+
+.hero-tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 280ms ease;
+  will-change: transform;
+}
+
+.hero-float-plane {
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-0.5deg);
+  }
+}
+
+@keyframes floatMed {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(2.5deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(4deg);
+  }
+}
+
+@keyframes floatAlt {
+  0%,
+  100% {
+    transform: translateY(-4px) rotate(1.5deg);
+  }
+  50% {
+    transform: translateY(8px) rotate(0deg);
+  }
+}
+
+@keyframes floatAltReverse {
+  0%,
+  100% {
+    transform: translateY(4px) rotate(-2.5deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(-1deg);
+  }
+}
+
+@keyframes marqueeScroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes softPulseRing {
+  0% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  80%,
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.anim-float-slow {
+  animation: floatSlow 5.6s ease-in-out infinite;
+}
+
+.anim-float-med {
+  animation: floatMed 4.8s ease-in-out infinite;
+}
+
+.anim-float-alt {
+  animation: floatAlt 5.2s ease-in-out infinite;
+}
+
+.anim-float-alt-rev {
+  animation: floatAltReverse 6s ease-in-out infinite;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 32s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.faq-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 360ms cubic-bezier(0.16, 1, 0.3, 1), opacity 260ms ease;
+}
+
+.faq-panel[data-open='true'] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.faq-panel-inner {
+  overflow: hidden;
+}
+
+.bento-3d {
+  transition:
+    transform 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 280ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 220ms ease;
+  transform-style: preserve-3d;
+}
+
+.bento-3d:hover {
+  transform: translateY(-6px) rotateX(2deg);
+  box-shadow: 0 22px 44px -16px rgba(11, 28, 48, 0.14);
+}
+
+.ping-dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background-color: inherit;
+  animation: softPulseRing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-float-slow,
+  .anim-float-med,
+  .anim-float-alt,
+  .anim-float-alt-rev,
+  .marquee-track,
+  .ping-dot::before {
+    animation: none !important;
+  }
+
+  .bento-3d:hover {
+    transform: none;
+  }
+}
