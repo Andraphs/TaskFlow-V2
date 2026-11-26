@@ -54,3 +54,6 @@ export type { FooterWidgetProps } from './FooterWidget';
 
 export { WorkspaceModalWidget } from './WorkspaceModalWidget';
 export type { WorkspaceModalWidgetProps } from './WorkspaceModalWidget';
+
+export { DemoVideoModalWidget } from './DemoVideoModalWidget';
+export type { DemoVideoModalWidgetProps } from './DemoVideoModalWidget';

@@ -21,6 +21,7 @@ import {
 } from './data/mockData';
 import {
   CustomerStoriesWidget,
+  DemoVideoModalWidget,
   FaqSplitWidget,
   FinalCtaWidget,
   FocusTimerWidget,
@@ -48,6 +49,7 @@ export function App() {
     isDashboardHash() ? 'dashboard' : 'landing',
   );
   const [modalOpen, setModalOpen] = useState(false);
+  const [demoVideoOpen, setDemoVideoOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('Starter');
 
   useEffect(() => {
@@ -97,6 +99,7 @@ export function App() {
   };
 
   const heroDashboardSrc = `${import.meta.env.BASE_URL}images/hero-dashboard-preview.png`;
+  const showcaseVideoSrc = `${import.meta.env.BASE_URL}videos/taskflow-showcase-v7.mp4`;
 
   if (activeView === 'dashboard') {
     return (
@@ -130,6 +133,7 @@ export function App() {
             pulseCapsule={heroData.pulseCapsule}
             momentumCard={heroData.momentumCard}
             onPrimaryCtaClick={openDashboard}
+            onSecondaryCtaClick={() => setDemoVideoOpen(true)}
           />
 
           {/* 2. Social Proof Marquee */}
@@ -284,6 +288,18 @@ export function App() {
           isOpen={modalOpen}
           selectedPlan={selectedPlan}
           onClose={() => setModalOpen(false)}
+        />
+
+        {/* Interactive Demo Motion Showcase Modal */}
+        <DemoVideoModalWidget
+          isOpen={demoVideoOpen}
+          videoSrc={showcaseVideoSrc}
+          posterSrc={heroDashboardSrc}
+          onClose={() => setDemoVideoOpen(false)}
+          onTryDashboard={() => {
+            setDemoVideoOpen(false);
+            openDashboard();
+          }}
         />
       </div>
     </MotionConfig>

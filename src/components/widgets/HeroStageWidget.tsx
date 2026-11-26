@@ -34,6 +34,7 @@ export interface HeroStageWidgetProps {
   /** Optional deterministic tilt override for Remotion renders */
   tiltOverride?: { x: number; y: number };
   onPrimaryCtaClick?: () => void;
+  onSecondaryCtaClick?: () => void;
 }
 
 export function HeroStageWidget({
@@ -49,6 +50,7 @@ export function HeroStageWidget({
   momentumCard,
   tiltOverride,
   onPrimaryCtaClick,
+  onSecondaryCtaClick,
 }: HeroStageWidgetProps) {
   const shouldReduceMotion = useReducedMotion();
 
@@ -172,13 +174,24 @@ export function HeroStageWidget({
             <MaterialIcon name="bolt" size={18} />
           </a>
         )}
-        <a
-          href="#features"
-          className="inline-flex items-center gap-gutter-sm px-gutter-xl py-gutter-md rounded-full bg-light-surface-container-lowest border border-light-outline-variant/60 text-light-on-surface hover:bg-neutral-canvas active:scale-95 transition-all duration-150"
-        >
-          <MaterialIcon name="play_circle" size={18} className="text-light-secondary" />
-          <span className="font-body text-label-lg">{secondaryCta}</span>
-        </a>
+        {onSecondaryCtaClick ? (
+          <button
+            type="button"
+            onClick={onSecondaryCtaClick}
+            className="inline-flex items-center gap-gutter-sm px-gutter-xl py-gutter-md rounded-full bg-light-surface-container-lowest border border-light-outline-variant/60 text-light-on-surface hover:bg-neutral-canvas active:scale-95 transition-all duration-150"
+          >
+            <MaterialIcon name="play_circle" size={18} className="text-light-secondary" />
+            <span className="font-body text-label-lg">{secondaryCta}</span>
+          </button>
+        ) : (
+          <a
+            href="#features"
+            className="inline-flex items-center gap-gutter-sm px-gutter-xl py-gutter-md rounded-full bg-light-surface-container-lowest border border-light-outline-variant/60 text-light-on-surface hover:bg-neutral-canvas active:scale-95 transition-all duration-150"
+          >
+            <MaterialIcon name="play_circle" size={18} className="text-light-secondary" />
+            <span className="font-body text-label-lg">{secondaryCta}</span>
+          </a>
+        )}
       </motion.div>
 
       {/* 3D FULL-DASHBOARD + ABSTRACT GEOMETRIC STAGE */}
